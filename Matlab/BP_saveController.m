@@ -7,7 +7,7 @@
 % Measurements = [error_X(k); error_Y(k); input(k-1); input(k-1);
 %                   error_X(k-1); error_Y(k-1); input(k-2); input(k-2); 
 %                   ... error_X(k-orderK); error_Y(k-orderK)]
-clear; close; clc;
+clear; close all; clc;
 
 %% Load data
 

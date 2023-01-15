@@ -22,11 +22,10 @@ G = Gmm(:,:,1);
 % Here parameteric model is used, as the closed-loop will be simulated.
 % Only the frequency response function (FRF) is needed for controller synthesis.
 
-%K = pid(25,2,25,0.1,'Ts',Ts,'IFormula','Trapezoidal','DFormula','Trapezoidal'); % Inital controller that is known to be stabilizing
-Kp = 25; Ki = 2; Kd = 25; tau = 0.1;
+Kp = 25; Kd = 25; tau = 0.1;
 z = tf('z',Ts);
-%K = Kp+Ki*Ts/2*(z+1)/(z-1)+2*Kd*(z-1)/((2*tau+Ts)*z-2*tau+Ts);
-K = Kp+2*Kd*(z-1)/((2*tau+Ts)*z-2*tau+Ts);
+K = Kp+2*Kd*(z-1)/((2*tau+Ts)*z-2*tau+Ts); % Inital controller that is known to be stabilizing
+
 Sinit = feedback(1,G*K);
 
 %disp(['Eigenvalues close-loop using initial controller: ', num2str(max(abs(eig(Sinit)))), ' (stable CL)']) % < 1 --> Stable Closed-loop
@@ -41,12 +40,9 @@ den(orderK+1) = 0; % zero padding
 num(orderK+1) = 0; % zero padding
 
 % Poles on unit cicle of the controller have to be in the fixed parts
-Fy = [1 -1]; % fixed parts in denominator.
-%den_new = deconv(den,Fy); % den = conv(den_new,Fy).
-den_new = den;
+Fy = 1; % no fixed parts in denominator.
+den_new = den; %den_new = deconv(den,Fy); % den = conv(den_new,Fy).
 
-% Denominator has only 2 tunable coefficients (first one is fixed to 1).
-% Numerator has 4 tunable coefficients,  Fx = 1. No need to change num.
 
 %% SET-UP system info
 
@@ -56,13 +52,11 @@ ctrl = struct('num',num,'den',den_new,'Ts',Ts,'Fx',1,'Fy',1); % assemble control
 
 SYS.controller = ctrl;
 SYS.model = G; % Specify model(s)
-%SYS.W = datadriven.utils.logspace2(0.3,pi/Ts,100); % specify frequency grid where problem is solved
 SYS.W = G.Frequency; % specify frequency grid where problem is solved
 
 %% Objective(s)
 % See different fields of OBJ
 wc = 1;
-%W1 = wc/(tf('z',Ts)-0.5);
 W1 = 1/c2d(makeweight(0.01,wc,2),Ts);
 W4 = 40/c2d(makeweight(1.05,wc,0.01),Ts);
 W3 = 1/c2d(300*tf(1),Ts);
@@ -81,7 +75,7 @@ title('Relative error vs Magnitude of W2')
 grid
 
 CON.W2 = Info.W1;
-%OBJ.oinf.W2 = Info.W1;
+
 %% Solve problem
 % See different fields of PAR
 PAR.tol = 1e-6; % stop when change in objective < 1e-4. 
@@ -139,9 +133,6 @@ disp(['Hinf true value: ', num2str(norm(S*W1,'inf'))])
 
 %% Save controller
 [num,den] = tfdata(Kdd,'v');
-% K11_X = Kdd.Numerator{1};
-% K11_Y = Kdd.Denominator{1};
-% n11_controller = orderK+1;
 
 K11_X = num;
 K11_Y = den;
