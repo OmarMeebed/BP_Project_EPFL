@@ -40,6 +40,7 @@ This project contains all software related to the identification and control of 
 ### Test ball and plate device
 - Plug in components (camera, motor, encoder, computer, amplifier, myRIO, circuit).
 - Place the plate in upright position before powering up the myRIO.
+- Open `BallPlate.lvproj`
 - Put the ball on the plate and run `Vision.vi`. Check that it shows the camera feed and coordinates are updated, ball coordinates are different than 0.
 - Run `main.vi` with Identify mode and check that graphs are showing reasonable values. `Vision.vi` and `main.vi` are run simultaneously.
 
